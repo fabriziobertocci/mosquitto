@@ -422,8 +422,10 @@ static int net__try_connect_tcp(const char *host, uint16_t port, mosq_sock_t *so
 
 		if(rp->ai_family == AF_INET){
 			((struct sockaddr_in *)rp->ai_addr)->sin_port = htons(port);
+                        /*
 		}else if(rp->ai_family == AF_INET6){
 			((struct sockaddr_in6 *)rp->ai_addr)->sin6_port = htons(port);
+                        */
 		}else{
 			COMPAT_CLOSE(*sock);
 			*sock = INVALID_SOCKET;
@@ -1093,11 +1095,13 @@ int net__socketpair(mosq_sock_t *pairR, mosq_sock_t *pairW)
 			sa->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 			sa->sin_port = 0;
 			ss_len = sizeof(struct sockaddr_in);
+                        /*
 		}else if(family[i] == AF_INET6){
 			sa6->sin6_family = family[i];
 			sa6->sin6_addr = in6addr_loopback;
 			sa6->sin6_port = 0;
 			ss_len = sizeof(struct sockaddr_in6);
+                        */
 		}else{
 			return MOSQ_ERR_INVAL;
 		}
@@ -1127,10 +1131,12 @@ int net__socketpair(mosq_sock_t *pairR, mosq_sock_t *pairW)
 			sa->sin_family = family[i];
 			sa->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 			ss_len = sizeof(struct sockaddr_in);
+/*
 		}else if(family[i] == AF_INET6){
 			sa6->sin6_family = family[i];
 			sa6->sin6_addr = in6addr_loopback;
 			ss_len = sizeof(struct sockaddr_in6);
+*/
 		}
 
 		spR = socket(family[i], SOCK_STREAM, IPPROTO_TCP);
