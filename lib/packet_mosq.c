@@ -264,13 +264,12 @@ int packet__write(struct mosquitto *mosq)
 					return MOSQ_ERR_SUCCESS;
 				}else{
 					pthread_mutex_unlock(&mosq->current_out_packet_mutex);
-					switch(errno){
-						case COMPAT_ECONNRESET:
-							return MOSQ_ERR_CONN_LOST;
-						case COMPAT_EINTR:
-							return MOSQ_ERR_SUCCESS;
-						default:
-							return MOSQ_ERR_ERRNO;
+                                        if (errno == COMPAT_ECONNRESET) {
+                                            return MOSQ_ERR_CONN_LOST;
+                                        } else if (errno == COMPAT_EINTR) {
+                                            return MOSQ_ERR_SUCCESS;
+                                        } else {
+                                            return MOSQ_ERR_ERRNO;
 					}
 				}
 			}
@@ -388,14 +387,13 @@ int packet__read(struct mosquitto *mosq)
 			if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
 				return MOSQ_ERR_SUCCESS;
 			}else{
-				switch(errno){
-					case COMPAT_ECONNRESET:
-						return MOSQ_ERR_CONN_LOST;
-					case COMPAT_EINTR:
-						return MOSQ_ERR_SUCCESS;
-					default:
-						return MOSQ_ERR_ERRNO;
-				}
+                                if (errno == COMPAT_ECONNRESET) {
+                                    return MOSQ_ERR_CONN_LOST;
+                                } else if (errno == COMPAT_EINTR) {
+                                    return MOSQ_ERR_SUCCESS;
+                                } else {
+                                    return MOSQ_ERR_ERRNO;
+                                }
 			}
 		}
 	}
@@ -433,14 +431,13 @@ int packet__read(struct mosquitto *mosq)
 				if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
 					return MOSQ_ERR_SUCCESS;
 				}else{
-					switch(errno){
-						case COMPAT_ECONNRESET:
-							return MOSQ_ERR_CONN_LOST;
-						case COMPAT_EINTR:
-							return MOSQ_ERR_SUCCESS;
-						default:
-							return MOSQ_ERR_ERRNO;
-					}
+                                    if (errno == COMPAT_ECONNRESET) {
+                                        return MOSQ_ERR_CONN_LOST;
+                                    } else if (errno == COMPAT_EINTR) {
+                                        return MOSQ_ERR_SUCCESS;
+                                    } else {
+                                        return MOSQ_ERR_ERRNO;
+                                    }
 				}
 			}
 		}while((byte & 128) != 0);
@@ -493,14 +490,13 @@ int packet__read(struct mosquitto *mosq)
 				}
 				return MOSQ_ERR_SUCCESS;
 			}else{
-				switch(errno){
-					case COMPAT_ECONNRESET:
-						return MOSQ_ERR_CONN_LOST;
-					case COMPAT_EINTR:
-						return MOSQ_ERR_SUCCESS;
-					default:
-						return MOSQ_ERR_ERRNO;
-				}
+                                if (errno == COMPAT_ECONNRESET) {
+                                    return MOSQ_ERR_CONN_LOST;
+                                } else if (errno == COMPAT_EINTR) {
+                                    return MOSQ_ERR_SUCCESS;
+                                } else {
+                                    return MOSQ_ERR_ERRNO;
+                                }
 			}
 		}
 	}
