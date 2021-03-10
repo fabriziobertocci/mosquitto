@@ -360,15 +360,12 @@ int main(int argc, char *argv[])
 
 	g_mosq = mosquitto_new(cfg.id, cfg.clean_session, &cfg);
 	if(!g_mosq){
-		switch(errno){
-			case ENOMEM:
-				err_printf(&cfg, "Error: Out of memory.\n");
-				break;
-			case EINVAL:
-				err_printf(&cfg, "Error: Invalid id and/or clean_session.\n");
-				break;
-		}
-		goto cleanup;
+            if (errno == ENOMEM) {
+                err_printf(&cfg, "Error: Out of memory.\n");
+            } else if (errno == EINVAL) {
+                err_printf(&cfg, "Error: Invalid id and/or clean_session.\n");
+            }
+            goto cleanup;
 	}
 	if(client_opts_set(g_mosq, &cfg)){
 		goto cleanup;

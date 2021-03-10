@@ -567,15 +567,12 @@ int main(int argc, char *argv[])
 
 	mosq = mosquitto_new(cfg.id, cfg.clean_session, NULL);
 	if(!mosq){
-		switch(errno){
-			case ENOMEM:
-				err_printf(&cfg, "Error: Out of memory.\n");
-				break;
-			case EINVAL:
-				err_printf(&cfg, "Error: Invalid id.\n");
-				break;
-		}
-		goto cleanup;
+            if (errno == ENOMEM) {
+                err_printf(&cfg, "Error: Out of memory.\n");
+            } else if (errno == EINVAL) {
+                err_printf(&cfg, "Error: Invalid id.\n");
+            } 
+            goto cleanup;
 	}
 	if(cfg.debug){
 		mosquitto_log_callback_set(mosq, my_log_callback);
