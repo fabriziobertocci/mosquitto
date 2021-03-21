@@ -66,7 +66,7 @@ extern "C" {
 
 #define LIBMOSQUITTO_MAJOR 2
 #define LIBMOSQUITTO_MINOR 0
-#define LIBMOSQUITTO_REVISION 8
+#define LIBMOSQUITTO_REVISION 9
 /* LIBMOSQUITTO_VERSION_NUMBER looks like 1002001 for e.g. version 1.2.1. */
 #define LIBMOSQUITTO_VERSION_NUMBER (LIBMOSQUITTO_MAJOR*1000000+LIBMOSQUITTO_MINOR*1000+LIBMOSQUITTO_REVISION)
 
@@ -1603,7 +1603,6 @@ libmosq_EXPORT int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt
  *	          This option is only available for openssl 1.1.0 and higher.
  */
 libmosq_EXPORT int mosquitto_void_option(struct mosquitto *mosq, enum mosq_opt_t option, void *value);
-
 
 /*
  * Function: mosquitto_reconnect_delay_set
