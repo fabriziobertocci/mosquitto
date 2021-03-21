@@ -21,15 +21,15 @@
 # Disabling this will also mean that passwords must be stored in plain text. It
 # is strongly recommended that you only disable WITH_TLS if you are not using
 # password authentication at all.
-WITH_TLS:=yes
+WITH_TLS:=no
 
 # Comment out to disable TLS/PSK support in the broker and client. Requires
 # WITH_TLS=yes.
 # This must be disabled if using openssl < 1.0.
-WITH_TLS_PSK:=yes
+WITH_TLS_PSK:=no
 
 # Comment out to disable client threading support.
-WITH_THREADING:=yes
+WITH_THREADING:=no
 
 # Comment out to remove bridge support from the broker. This allow the broker
 # to connect to other brokers and subscribe/publish to topics. You probably
@@ -76,13 +76,13 @@ WITH_EC:=yes
 WITH_DOCS:=yes
 
 # Build with client support for SOCK5 proxy.
-WITH_SOCKS:=yes
+WITH_SOCKS:=no
 
 # Strip executables and shared libraries on install.
 WITH_STRIP:=no
 
 # Build static libraries
-WITH_STATIC_LIBRARIES:=no
+WITH_STATIC_LIBRARIES:=yes
 
 # Use this variable to add extra library dependencies when building the clients
 # with the static libmosquitto library. This may be required on some systems
@@ -90,7 +90,7 @@ WITH_STATIC_LIBRARIES:=no
 CLIENT_STATIC_LDADD:=
 
 # Build shared libraries
-WITH_SHARED_LIBRARIES:=yes
+WITH_SHARED_LIBRARIES:=no
 
 # Build with async dns lookup support for bridges (temporary). Requires glibc.
 #WITH_ADNS:=yes
@@ -105,10 +105,10 @@ WITH_BUNDLED_DEPS:=yes
 WITH_COVERAGE:=no
 
 # Build with unix domain socket support
-WITH_UNIX_SOCKETS:=yes
+WITH_UNIX_SOCKETS:=no
 
 # Build mosquitto_sub with cJSON support
-WITH_CJSON:=yes
+WITH_CJSON:=no
 
 # Build mosquitto with support for the $CONTROL topics.
 WITH_CONTROL:=yes
@@ -119,6 +119,24 @@ WITH_JEMALLOC:=no
 # Build with xtreport capability. This is for debugging purposes and is
 # probably of no particular interest to end users.
 WITH_XTREPORT=no
+
+WITH_COSMOPOLITAN=yes
+
+COSMO_SYSHEADERS=/home/fabrizio/working/Cosmopolitan/cosmo-include
+COSMODIR=/home/fabrizio/working/Cosmopolitan/git/cosmopolitan.fork
+COSMOBIN=$(COSMODIR)/o/dbg
+COSMO_HEADER=$(COSMODIR)/o/cosmopolitan.h
+COSMO_LIB=$(COSMOBIN)/cosmopolitan.a
+COSMO_APE_LDS=$(COSMOBIN)/ape/ape.lds
+COSMO_APE_O=$(COSMOBIN)/ape/ape.o
+COSMO_CRT_O=$(COSMOBIN)/libc/crt/crt.o
+
+COSMO_CFLAGS = -static -nostdlib -nostdinc -fno-pie -no-pie \
+	    -mno-red-zone -fno-omit-frame-pointer -mnop-mcount \
+	    -Wno-sign-conversion -Wno-conversion \
+	    -I$(COSMO_SYSHEADERS) -include $(COSMO_HEADER)
+COSMO_LDFLAGS = $(COSMO_CFLAGS) -fuse-ld=bfd -Wl,-T,$(COSMO_APE_LDS) $(COSMO_CRT_O) $(COSMO_APE_O) $(COSMO_LIB)
+
 
 # =============================================================================
 # End of user configuration
@@ -375,6 +393,20 @@ endif
 
 ifeq ($(WITH_XTREPORT),yes)
 	BROKER_CFLAGS:=$(BROKER_CFLAGS) -DWITH_XTREPORT
+endif
+
+ifeq ($(WITH_COSMOPOLITAN),yes)
+	LIB_CFLAGS:=$(LIB_CFLAGS) $(COSMO_CFLAGS)
+	# Note: LIB_LDFLAGS is used only for shared libs
+	BROKER_CFLAGS:=$(BROKER_CFLAGS) $(COSMO_CFLAGS)
+	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) $(COSMO_LDFLAGS)
+	# Cosmopolitan does not support shared libs
+	#PLUGIN_CFLAGS:=$(PLUGIN_CFLAGS) $(COSMO_CFLAGS)
+	#PLUGIN_LDFLAGS:=$(PLUGIN_LDFLAGS) $(COSMO_LDFLAGS)
+	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) $(COSMO_CFLAGS)
+	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) $(COSMO_LDFLAGS)
+	APP_CFLAGS:=$(APP_CFLAGS) $(COSMO_CFLAGS)
+	APP_LDFLAGS:=$(APP_LDFLAGS) $(COSMO_LDFLAGS)
 endif
 
 BROKER_LDADD:=${BROKER_LDADD} ${LDADD}
