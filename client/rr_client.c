@@ -50,8 +50,6 @@ enum rr__state {
 
 static enum rr__state client_state = rr_s_new;
 
-extern struct mosq_config cfg;
-
 bool process_messages = true;
 int msg_count = 0;
 struct mosquitto *g_mosq = NULL;
@@ -348,15 +346,12 @@ int main(int argc, char *argv[])
 
 	g_mosq = mosquitto_new(cfg.id, cfg.clean_session, &cfg);
 	if(!g_mosq){
-		switch(errno){
-			case ENOMEM:
-				err_printf(&cfg, "Error: Out of memory.\n");
-				break;
-			case EINVAL:
-				err_printf(&cfg, "Error: Invalid id and/or clean_session.\n");
-				break;
-		}
-		goto cleanup;
+            if (errno == ENOMEM) {
+                err_printf(&cfg, "Error: Out of memory.\n");
+            } else if (errno == EINVAL) {
+                err_printf(&cfg, "Error: Invalid id and/or clean_session.\n");
+            }
+            goto cleanup;
 	}
 	if(client_opts_set(g_mosq, &cfg)){
 		goto cleanup;
