@@ -600,7 +600,7 @@ int net__tls_load_verify(struct mosquitto__listener *listener)
 }
 
 
-#ifndef WIN32
+#if !defined(WITH_COSMOPOLITAN) && !defined(WIN32)
 static int net__bind_interface(struct mosquitto__listener *listener, struct addrinfo *rp)
 {
 	/*
@@ -664,7 +664,7 @@ static int net__bind_interface(struct mosquitto__listener *listener, struct addr
 	            listener->bind_interface, rp->ai_addr->sa_family == AF_INET ? "IPv4" : "IPv6");
 	return MOSQ_ERR_NOT_FOUND;
 }
-#endif
+#endif // !WITH_COSMOPOLITAN || !WIN32
 
 
 static int net__socket_listen_tcp(struct mosquitto__listener *listener)
@@ -703,8 +703,10 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 	for(rp = ainfo; rp; rp = rp->ai_next){
 		if(rp->ai_family == AF_INET){
 			log__printf(NULL, MOSQ_LOG_INFO, "Opening ipv4 listen socket on port %d.", ntohs(((struct sockaddr_in *)rp->ai_addr)->sin_port));
+#ifndef WITH_COSMOPOLITAN
 		}else if(rp->ai_family == AF_INET6){
 			log__printf(NULL, MOSQ_LOG_INFO, "Opening ipv6 listen socket on port %d.", ntohs(((struct sockaddr_in6 *)rp->ai_addr)->sin6_port));
+#endif // !WITH_COSMOPOLITAN
 		}else{
 			continue;
 		}
@@ -740,7 +742,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 			return 1;
 		}
 
-#ifndef WIN32
+#if !defined(WITH_COSMOPOLITAN) && !defined(WIN32)
 		if(listener->bind_interface){
 			/* It might be possible that an interface does not support all relevant sa_families.
 			 * We should successfully find at least one. */
@@ -751,7 +753,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 			}
 			interface_bound = true;
 		}
-#endif
+#endif // !WITH_COSMOPOLITAN || !WIN32
 
 		if(bind(sock, rp->ai_addr, rp->ai_addrlen) == -1){
 			net__print_error(MOSQ_LOG_ERR, "Error: %s");
@@ -918,6 +920,7 @@ int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *r
 			if(inet_ntop(AF_INET, &((struct sockaddr_in *)&addr)->sin_addr.s_addr, buf, (socklen_t)len)){
 				return 0;
 			}
+#ifndef WITH_COSMOPOLITAN
 		}else if(addr.ss_family == AF_INET6){
 			if(remote_port){
 				*remote_port = ntohs(((struct sockaddr_in6 *)&addr)->sin6_port);
@@ -925,6 +928,7 @@ int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *r
 			if(inet_ntop(AF_INET6, &((struct sockaddr_in6 *)&addr)->sin6_addr.s6_addr, buf, (socklen_t)len)){
 				return 0;
 			}
+#endif // !WITH_COSMOPOLITAN
 #ifdef WITH_UNIX_SOCKETS
 		}else if(addr.ss_family == AF_UNIX){
 			struct sockaddr_un un;
