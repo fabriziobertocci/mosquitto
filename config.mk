@@ -134,8 +134,8 @@ COSMO_CRT_O=$(COSMOBIN)/libc/crt/crt.o
 COSMO_CFLAGS = -static -nostdlib -nostdinc -fno-pie -no-pie \
 	    -mno-red-zone -fno-omit-frame-pointer -mnop-mcount \
 	    -Wno-sign-conversion -Wno-conversion \
-	    -I$(COSMO_SYSHEADERS) -include $(COSMO_HEADER)
-COSMO_LDFLAGS = $(COSMO_CFLAGS) -fuse-ld=bfd -Wl,-T,$(COSMO_APE_LDS) $(COSMO_CRT_O) $(COSMO_APE_O) $(COSMO_LIB)
+	    -I$(COSMO_SYSHEADERS) -DWITH_COSMOPOLITAN -include $(COSMO_HEADER)
+COSMO_LDFLAGS = $(COSMO_CFLAGS) -fuse-ld=bfd -Wl,-T,$(COSMO_APE_LDS) $(COSMO_CRT_O) $(COSMO_APE_O)
 
 
 # =============================================================================
@@ -202,14 +202,18 @@ ifneq ($(or $(findstring $(UNAME),FreeBSD), $(findstring $(UNAME),OpenBSD), $(fi
 	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -Wl,--dynamic-list=linker.syms
 	SEDINPLACE:=-i ""
 else
+    ifneq ($(WITH_COSMOPOLITAN),yes)
 	BROKER_LDADD:=$(BROKER_LDADD) -ldl -lm
+    endif
 	SEDINPLACE:=-i
 endif
 
 ifeq ($(UNAME),Linux)
+    ifneq ($(WITH_COSMOPOLITAN),yes)
 	BROKER_LDADD:=$(BROKER_LDADD) -lrt
 	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -Wl,--dynamic-list=linker.syms
 	LIB_LIBADD:=$(LIB_LIBADD) -lrt
+    endif
 endif
 
 ifeq ($(WITH_SHARED_LIBRARIES),yes)
@@ -400,13 +404,17 @@ ifeq ($(WITH_COSMOPOLITAN),yes)
 	# Note: LIB_LDFLAGS is used only for shared libs
 	BROKER_CFLAGS:=$(BROKER_CFLAGS) $(COSMO_CFLAGS)
 	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) $(COSMO_LDFLAGS)
+	BROKER_LDADD:=$(BROKER_LDADD) $(COSMO_LIB)
 	# Cosmopolitan does not support shared libs
 	#PLUGIN_CFLAGS:=$(PLUGIN_CFLAGS) $(COSMO_CFLAGS)
 	#PLUGIN_LDFLAGS:=$(PLUGIN_LDFLAGS) $(COSMO_LDFLAGS)
 	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) $(COSMO_CFLAGS)
 	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) $(COSMO_LDFLAGS)
+	CLIENT_LDADD:=$(CLIENT_LDADD) $(COSMO_LIB)
+	CLIENT_STATIC_LDADD:=$(CLIENT_LDADD) $(COSMO_LIB)
 	APP_CFLAGS:=$(APP_CFLAGS) $(COSMO_CFLAGS)
 	APP_LDFLAGS:=$(APP_LDFLAGS) $(COSMO_LDFLAGS)
+	APP_LDADD:=$(APP_LDADD) $(COSMO_LIB)
 endif
 
 BROKER_LDADD:=${BROKER_LDADD} ${LDADD}
