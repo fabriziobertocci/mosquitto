@@ -26,7 +26,7 @@ OBJS = \
 all : mosquitto_db_dump
 
 mosquitto_db_dump : ${OBJS}
-	${CROSS_COMPILE}${CC} $^ -o $@ ${APP_LDFLAGS} ${LIBS}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${APP_LDFLAGS} ${LIBS} ${APP_LDADD}
 
 db_dump.o : db_dump.c db_dump.h ../../src/persist.h
 	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(LOCAL_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
