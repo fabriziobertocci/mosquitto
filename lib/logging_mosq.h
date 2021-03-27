@@ -20,6 +20,8 @@ Contributors:
 
 #include "mosquitto.h"
 
-int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...);
+#ifndef BROKER_LOGGING_MOSQ_DEFINED
+int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
+#endif
 
 #endif

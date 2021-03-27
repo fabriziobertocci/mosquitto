@@ -709,7 +709,13 @@ int control__unregister_callback(struct mosquitto__security_options *opts, MOSQ_
  * ============================================================ */
 int log__init(struct mosquitto__config *config);
 int log__close(struct mosquitto__config *config);
+
+// COSMOPOLITAN - avoid duplicate signature of log__printf (also defined in lib/logging_mosq.h)
+//                (same signature)
+#ifndef LOGGING_MOSQ_H
 int log__printf(struct mosquitto *mosq, unsigned int level, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
+#define BROKER_LOGGING_MOSQ_DEFINED
+#endif
 void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ============================================================
