@@ -26,8 +26,9 @@ Contributors:
 #include "send_mosq.h"
 #include "util_mosq.h"
 #include "utlist.h"
-#include "lib_load.h"
 
+#ifndef WITH_COSMOPOLITAN
+#include "lib_load.h"
 
 static bool check_callback_exists(struct mosquitto__callback *cb_base, MOSQ_FUNC_generic_callback cb_func)
 {
@@ -319,3 +320,68 @@ int mosquitto_callback_unregister(
 
 	return remove_callback(cb_base, cb_func);
 }
+
+#else
+/* Empty stubs */
+
+int plugin__load_v5(struct mosquitto__listener *listener, 
+        struct mosquitto__auth_plugin *plugin, 
+        struct mosquitto_opt *options, 
+        int option_count, 
+        void *lib) {
+    (void)listener;
+    (void)plugin;
+    (void)options;
+    (void)option_count;
+    (void)lib;
+    log__printf(NULL, MOSQ_LOG_ERR,
+                    "Error: Plugin not supported for Cosmopolitan build.");
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+void plugin__handle_disconnect(
+        struct mosquitto *context, 
+        int reason) {
+    (void)context;
+    (void)reason;
+}
+
+int plugin__handle_message(
+        struct mosquitto *context, 
+        struct mosquitto_msg_store *stored) {
+    (void)context;
+    (void)stored;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+void plugin__handle_tick(void) {
+}
+
+int mosquitto_callback_register(
+        mosquitto_plugin_id_t *identifier,
+        int event,
+        MOSQ_FUNC_generic_callback cb_func,
+        const void *event_data,
+        void *userdata) {
+    (void)identifier;
+    (void)event;
+    (void)cb_func;
+    (void)event_data;
+    (void)userdata;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int mosquitto_callback_unregister(
+        mosquitto_plugin_id_t *identifier,
+        int event,
+        MOSQ_FUNC_generic_callback cb_func,
+        const void *event_data) {
+
+    (void)identifier;
+    (void)event;
+    (void)cb_func;
+    (void)event_data;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+#endif

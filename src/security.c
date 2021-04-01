@@ -25,8 +25,10 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mosquitto_plugin.h"
 #include "memory_mosq.h"
-#include "lib_load.h"
 #include "utlist.h"
+
+#ifndef WITH_COSMOPOLITAN
+#include "lib_load.h"
 
 typedef int (*FUNC_auth_plugin_version)(void);
 typedef int (*FUNC_plugin_version)(int, const int *);
@@ -1032,3 +1034,134 @@ int mosquitto_security_auth_continue(struct mosquitto *context, const void *data
 
 	return MOSQ_ERR_NOT_SUPPORTED;
 }
+
+#else
+// Empty stubs for Cosmopolitan
+int security__load_v2(
+        struct mosquitto__auth_plugin *plugin, 
+        struct mosquitto_auth_opt *auth_options, 
+        int auth_option_count, 
+        void *lib) {
+    (void)plugin;
+    (void)auth_options;
+    (void)auth_option_count;
+    (void)lib;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int security__load_v3(
+        struct mosquitto__auth_plugin *plugin, 
+        struct mosquitto_opt *auth_options, 
+        int auth_option_count, 
+        void *lib) {
+    (void)plugin;
+    (void)auth_options;
+    (void)auth_option_count;
+    (void)lib;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int security__load_v4(
+        struct mosquitto__auth_plugin *plugin, 
+        struct mosquitto_opt *auth_options, 
+        int auth_option_count, 
+        void *lib) {
+    (void)plugin;
+    (void)auth_options;
+    (void)auth_option_count;
+    (void)lib;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+/* The following methods will succeed, but will perform nothing... */
+int mosquitto_security_module_init(void) {
+    return MOSQ_ERR_SUCCESS;
+}
+
+int mosquitto_security_module_cleanup(void) {
+    return MOSQ_ERR_SUCCESS;
+}
+
+int mosquitto_security_init(bool reload) {
+    (void)reload;
+    return MOSQ_ERR_SUCCESS;
+}
+
+int mosquitto_security_apply(void) {
+    return MOSQ_ERR_SUCCESS;
+}
+
+int mosquitto_security_cleanup(bool reload) {
+    (void)reload;
+    return MOSQ_ERR_SUCCESS;
+}
+
+int mosquitto_acl_check(
+        struct mosquitto *context, 
+        const char *topic, 
+        uint32_t payloadlen, 
+        void* payload, 
+        uint8_t qos, 
+        bool retain, 
+        int access) {
+    (void)context;
+    (void)topic;
+    (void)payloadlen;
+    (void)payload;
+    (void)qos;
+    (void)retain;
+    (void)access;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int mosquitto_unpwd_check(
+        struct mosquitto *context) {
+    (void)context;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int mosquitto_psk_key_get(
+        struct mosquitto *context, 
+        const char *hint, 
+        const char *identity, 
+        char *key, 
+        int max_key_len) {
+    (void)context;
+    (void)hint;
+    (void)identity;
+    (void)key;
+    (void)max_key_len;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int mosquitto_security_auth_start(
+        struct mosquitto *context, 
+        bool reauth, 
+        const void *data_in, 
+        uint16_t data_in_len, 
+        void **data_out, 
+        uint16_t *data_out_len) {
+    (void)context;
+    (void)reauth;
+    (void)data_in;
+    (void)data_in_len;
+    (void)data_out;
+    (void)data_out_len;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+int mosquitto_security_auth_continue(
+        struct mosquitto *context, 
+        const void *data_in, 
+        uint16_t data_in_len, 
+        void **data_out, 
+        uint16_t *data_out_len) {
+    (void)context;
+    (void)data_in;
+    (void)data_in_len;
+    (void)data_out;
+    (void)data_out_len;
+    return MOSQ_ERR_NOT_SUPPORTED;
+}
+
+#endif
